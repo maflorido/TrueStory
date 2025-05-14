@@ -1,6 +1,6 @@
 ﻿# TrueStory
 
-# Products API
+## Products API
 
 This api consumes a 3rd party api (`https://api.restful-api.dev/`). It implements pagination and filtering even the final api does not supporting it.
 
