@@ -13,17 +13,18 @@ public class ProductService(IProductApiClient client, IValidator<Product> valida
 
         //I am assuming the api always return the items sorted. If not, I would need to implement a sort policy on my end to make the pagination consistent.
         var filtered = result.Value!
-            .Where(p => string.IsNullOrEmpty(name) || p.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
-            .Skip((page - 1) * pageSize)
+            .Where(p => string.IsNullOrEmpty(name) || p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+
+        var paginated = filtered.Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToList();
 
-        return Result<List<Product>>.PaginatedSuccess(filtered, result.Value!.Count);
+        return Result<List<Product>>.PaginatedSuccess(paginated, filtered.Count());
     }
 
     public async Task<Result<Product>> CreateAsync(Product product)
     {
-        var validationResult = validator.Validate(product);
+        var validationResult = await validator.ValidateAsync(product);
 
         if (!validationResult.IsValid)
             return Result<Product>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)), ErrorCode.ValidationError);
